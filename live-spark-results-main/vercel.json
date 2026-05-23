@@ -1,6 +1,7 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "framework": null
+  "outputDirectory": ".output/public",
+  "framework": null,
+  "installCommand": "npm install"
 }
