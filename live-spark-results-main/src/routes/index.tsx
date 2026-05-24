@@ -27,6 +27,34 @@ function Home() {
   const latest = results[0];
   const activeGamesOpen = isActiveGamesWindow();
 
+  // Fixed 3 games - use database games if available, otherwise use defaults
+  const fixedGames = games.length > 0 ? games : [
+    { name: "Diamond Draw", id: "diamond-draw" },
+    { name: "Golden Spin", id: "golden-spin" },
+    { name: "Lucky Spin", id: "lucky-spin" },
+  ];
+
+  // Generate time slots from 10:00 AM to 11:00 PM every 30 minutes
+  const generateTimeSlots = (): string[] => {
+    const slots: string[] = [];
+    let hour = 10;
+    let minute = 0;
+    while (hour < 23 || (hour === 23 && minute === 0)) {
+      const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+      const ampm = hour >= 12 ? "PM" : "AM";
+      const displayMinute = minute === 0 ? "00" : minute;
+      slots.push(`${displayHour}:${displayMinute} ${ampm}`);
+      minute += 30;
+      if (minute === 60) {
+        minute = 0;
+        hour++;
+      }
+    }
+    return slots;
+  };
+
+  const timeSlots = generateTimeSlots();
+
   return (
     <div className="container mx-auto px-4 max-w-5xl">
       {/* Hero */}
@@ -41,20 +69,29 @@ function Home() {
           Official winning numbers published throughout the day. Refreshed automatically.
         </p>
         <div className="mt-6"><CountdownTimer /></div>
+        <div className="mt-6">
+          <a
+            href="/app-debug.apk"
+            download
+            className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            Download Android App
+          </a>
+        </div>
       </section>
 
       {/* Stats */}
       <section className="grid grid-cols-3 gap-3 mb-8">
         {activeGamesOpen ? (
-          <Stat label="Active Games" value={games.length} />
+          <Stat label="Active Games" value={fixedGames.length} />
         ) : (
           <Stat label="Games Closed" />
         )}
         <Stat label="Today's Results" value={results.length} />
-        <Stat label="Latest" value={latest ? String(latest.result_number).padStart(2, "0") : "—"} />
+        <Stat label="Total Slots" value={timeSlots.length} />
       </section>
 
-      {/* Games */}
+      {/* Games - Always render 3 fixed horizontal rows */}
       <section className="pb-10">
         <div className="flex items-baseline justify-between mb-4">
           <h2 className="text-lg font-semibold">Today's Results</h2>
@@ -64,20 +101,16 @@ function Home() {
           <div className="grid gap-4 md:grid-cols-2">
             {[1, 2].map((i) => <div key={i} className="h-64 rounded-[10px] border border-border bg-card" />)}
           </div>
-        ) : games.length === 0 ? (
-          <div className="rounded-[10px] border border-border bg-card p-8 text-center text-muted-foreground text-sm">
-            No games yet. Add some from the admin panel.
-          </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {games.map((g) => {
-              const gameResults = results.filter((r) => r.game_id === g.id);
-              const slots = g.time_slots.map((t) => ({
+          <div className="space-y-4">
+            {fixedGames.map((game) => {
+              const gameResults = results.filter((r) => r.game_id === game.id);
+              const slots = timeSlots.map((t) => ({
                 time: t,
                 number: gameResults.find((r) => r.result_time === t)?.result_number ?? null,
               }));
               const latestForGame = gameResults[0]?.result_time;
-              return <GameCard key={g.id} name={g.name} slots={slots} latestTime={latestForGame} />;
+              return <GameCard key={game.id} name={game.name} slots={slots} latestTime={latestForGame} resultDate={date} />;
             })}
           </div>
         )}

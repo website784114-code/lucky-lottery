@@ -3,7 +3,7 @@ import {
   Outlet, Link, createRootRouteWithContext, useRouter, HeadContent, Scripts,
 } from "@tanstack/react-router";
 import { Toaster } from "sonner";
-import "../styles.css";
+import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth-context";
 import { AdminAuthProvider } from "@/lib/admin-auth-context";
 import { Header } from "@/components/layout/Header";
@@ -47,6 +47,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary" },
     ],
     links: [
+      { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
       { rel: "apple-touch-icon", href: "/favicon.png" },
     ],
