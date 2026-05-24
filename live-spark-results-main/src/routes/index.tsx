@@ -26,6 +26,13 @@ function Home() {
   const { games, results, loading, date } = useLiveData();
   const latest = results[0];
   const activeGamesOpen = isActiveGamesWindow();
+  
+  // Check if running in Android WebView/Capacitor
+  const isAndroidApp = typeof window !== 'undefined' && (
+    window.navigator.userAgent.includes('Android') ||
+    window.navigator.userAgent.includes('Capacitor') ||
+    (window as any).Capacitor !== undefined
+  );
 
   // Fixed 3 games - use database games if available, otherwise use defaults
   const fixedGames = games.length > 0 ? games : [
@@ -69,15 +76,17 @@ function Home() {
           Official winning numbers published throughout the day. Refreshed automatically.
         </p>
         <div className="mt-6"><CountdownTimer /></div>
-        <div className="mt-6">
-          <a
-            href="/app-debug.apk"
-            download
-            className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            Download Android App
-          </a>
-        </div>
+        {!isAndroidApp && (
+          <div className="mt-6">
+            <a
+              href="/app-debug.apk"
+              download
+              className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              Download Android App
+            </a>
+          </div>
+        )}
       </section>
 
       {/* Stats */}
