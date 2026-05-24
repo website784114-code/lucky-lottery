@@ -1,1 +1,2 @@
+/app-debug.apk /app-debug.apk 200
 /* /index.html 200
